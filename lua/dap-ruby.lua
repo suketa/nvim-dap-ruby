@@ -11,8 +11,6 @@ local function setup_ruby_adapter(dap)
     local handle
     local stdout = vim.loop.new_pipe(false)
     local pid_or_err
-    local port = config.port or 38698
-    local host = config.host or "127.0.0.1"
 
     local opts = {
       stdio = {nil, stdout},
@@ -41,27 +39,22 @@ local function setup_ruby_adapter(dap)
     -- Wait for rdbg to start
     vim.defer_fn(
       function()
-        callback({type = "server", host = host, port = port})
+        callback({type = "server", host = config.server, port = config.port})
       end,
-    1000)
+    500)
   end
 end
 
 local function setup_ruby_configuration(dap)
   dap.configurations.ruby = {
     {
-        type = 'ruby';
-        name = 'debug current file';
-        request = 'attach';
-        command = "ruby";
-        script = "${file}";
-    },
-    {
-        type = 'ruby';
-        name = 'rake test';
-        request = 'attach';
-        command = "rake test";
-        script = "";
+       type = 'ruby';
+       name = 'debug current file';
+       request = 'attach';
+       command = "ruby";
+       script = "${file}";
+       port = 38698;
+       server = '127.0.0.1';
     }
   }
 end
