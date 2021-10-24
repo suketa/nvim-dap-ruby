@@ -12,7 +12,7 @@ local function setup_ruby_adapter(dap)
     local stdout = vim.loop.new_pipe(false)
     local pid_or_err
     local port = config.port or 38698
-    local server = config.server or "127.0.0.1"
+    local host = config.host or "127.0.0.1"
 
     local opts = {
       stdio = {nil, stdout},
