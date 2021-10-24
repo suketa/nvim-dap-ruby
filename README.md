@@ -1,1 +1,1 @@
-# nvim-dup-ruby
+# nvim-dap-ruby
