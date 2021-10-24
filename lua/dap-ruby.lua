@@ -52,14 +52,14 @@ local function setup_ruby_configuration(dap)
     {
         type = 'ruby';
         name = 'debug current file';
-        request = 'attach';
+        request = 'launch';
         command = "ruby";
         script = "${file}";
     },
     {
         type = 'ruby';
         name = 'rake test';
-        request = 'attach';
+        request = 'launch';
         command = "rake test";
         script = "";
     }
