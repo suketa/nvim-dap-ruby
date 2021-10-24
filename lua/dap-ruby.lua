@@ -43,7 +43,7 @@ local function setup_ruby_adapter(dap)
       function()
         callback({type = "server", host = host, port = port})
       end,
-    500)
+    1000)
   end
 end
 
@@ -52,14 +52,14 @@ local function setup_ruby_configuration(dap)
     {
         type = 'ruby';
         name = 'debug current file';
-        request = 'launch';
+        request = 'attach';
         command = "ruby";
         script = "${file}";
     },
     {
         type = 'ruby';
         name = 'rake test';
-        request = 'launch';
+        request = 'attach';
         command = "rake test";
         script = "";
     }
