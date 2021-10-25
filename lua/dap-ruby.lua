@@ -11,6 +11,7 @@ local function setup_ruby_adapter(dap)
     local handle
     local stdout = vim.loop.new_pipe(false)
     local pid_or_err
+    local waiting = config.waiting or 500
 
     local opts = {
       stdio = {nil, stdout},
@@ -41,7 +42,7 @@ local function setup_ruby_adapter(dap)
       function()
         callback({type = "server", host = config.server, port = config.port})
       end,
-    500)
+    waiting)
   end
 end
 
@@ -55,6 +56,7 @@ local function setup_ruby_configuration(dap)
        script = "${file}";
        port = 38698;
        server = '127.0.0.1';
+       waiting = 1000;
     }
   }
 end
