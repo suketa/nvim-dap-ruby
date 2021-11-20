@@ -12,6 +12,13 @@ local function setup_ruby_adapter(dap)
     local stdout = vim.loop.new_pipe(false)
     local pid_or_err
     local waiting = config.waiting or 500
+    local args
+
+    if config.bundle == 'bundle' then
+      args = {"--open", "--port", config.port, "-c", "--", "bundle", "exec", config.command, config.script}
+    else
+      args = {"--open", "--port", config.port, "-c", "--", config.command, config.script}
+    end
 
     local opts = {
       stdio = {nil, stdout},
@@ -51,9 +58,32 @@ local function setup_ruby_configuration(dap)
     {
        type = 'ruby';
        name = 'debug current file';
+       bundle = '';
        request = 'attach';
        command = "ruby";
        script = "${file}";
+       port = 38698;
+       server = '127.0.0.1';
+       waiting = 1000;
+    },
+    {
+       type = 'ruby';
+       name = 'run current spec file';
+       bundle = 'bundle';
+       request = 'attach';
+       command = "rspec";
+       script = "${file}";
+       port = 38698;
+       server = '127.0.0.1';
+       waiting = 1000;
+    },
+    {
+       type = 'ruby';
+       name = 'run rspec';
+       bundle = 'bundle';
+       request = 'attach';
+       command = "rspec";
+       script = "./spec";
        port = 38698;
        server = '127.0.0.1';
        waiting = 1000;
