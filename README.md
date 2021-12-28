@@ -11,8 +11,8 @@ An extension for [nvim-dap](https://github.com/mfussenegger/nvim-dap) providing 
 ## Installation
 
 ```
-Plug 'nvim-dap'
-Plug 'nvim-dap-ruby'
+Plug 'mfussenegger/nvim-dap'
+Plug 'suketa/nvim-dap-ruby'
 ```
 
 ## Usage
