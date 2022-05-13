@@ -6,13 +6,12 @@ local function load_module(module_name)
   return module
 end
 
-------------------------------------
 --[[ HOW TO DEBUG
 create script a.rb to debug
 
 ```
-  binding.break
   foo = 1
+  binding.break
   bar = 2
   baz = 3
   puts "finish"
@@ -30,10 +29,11 @@ nvim a.rb
 :lua require'dap'.repl.open()
 ```
 
+nvim-dap log files is .cache/nvim/dap.log
+nvim-dap log files is .cache/nvim/dap.log
 ]]
 
--- if you want to debug, remove '--[[ DEBUG SETTING',  ']] -- END OF DEBUG SETTING'
-
+-- To DEBUG, change '--[[ DEBUG SETTING' => '-- [[ DEBUG SETTING'
 --[[ DEBUG SETTING
 local function setup_ruby_adapter(dap)
   dap.adapters.ruby = function(callback, config)
@@ -42,6 +42,7 @@ local function setup_ruby_adapter(dap)
 end
 
 local function setup_ruby_configuration(dap)
+  dap.set_log_level('TRACE')
   dap.configurations.ruby = {
     {
        type = 'ruby';
@@ -52,10 +53,10 @@ local function setup_ruby_configuration(dap)
     }
   }
 end
-]] -- END OF DEBUG SETTING
+-- ]] -- END OF DEBUG SETTING
 -- END for nvim-dap-ruby debug
-------------------------------------
 
+-- [[
 local function setup_ruby_adapter(dap)
   dap.adapters.ruby = function(callback, config)
     local handle
@@ -140,6 +141,7 @@ local function setup_ruby_configuration(dap)
     }
   }
 end
+-- ]] -- DONT REMOVE THIS LINE
 
 function M.setup()
   local dap = load_module("dap")
