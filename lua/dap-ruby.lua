@@ -6,6 +6,56 @@ local function load_module(module_name)
   return module
 end
 
+------------------------------------
+--[[ HOW TO DEBUG
+create script a.rb to debug
+
+```
+  binding.break
+  foo = 1
+  bar = 2
+  baz = 3
+  puts "finish"
+```
+
+run the following command
+```
+rdbg --open --port 38698 -n -- a.rb
+```
+
+run
+```
+nvim a.rb
+:lua require'dap'.continue()
+:lua require'dap'.repl.open()
+```
+
+]]
+
+-- if you want to debug, remove '--[[ DEBUG SETTING',  ']] -- END OF DEBUG SETTING'
+
+--[[ DEBUG SETTING
+local function setup_ruby_adapter(dap)
+  dap.adapters.ruby = function(callback, config)
+    callback({type = "server", host = config.server, port = config.port})
+  end
+end
+
+local function setup_ruby_configuration(dap)
+  dap.configurations.ruby = {
+    {
+       type = 'ruby';
+       name = 'debug current file';
+       port = 38698;
+       server = '127.0.0.1';
+       request = 'attach';
+    }
+  }
+end
+]] -- END OF DEBUG SETTING
+-- END for nvim-dap-ruby debug
+------------------------------------
+
 local function setup_ruby_adapter(dap)
   dap.adapters.ruby = function(callback, config)
     local handle
@@ -90,7 +140,6 @@ local function setup_ruby_configuration(dap)
     }
   }
 end
-
 
 function M.setup()
   local dap = load_module("dap")
