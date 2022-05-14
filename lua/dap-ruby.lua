@@ -67,14 +67,14 @@ local function setup_ruby_adapter(dap)
     local args
 
     if config.bundle == 'bundle' then
-      args = {"--open", "--port", config.port, "-c", "--", "bundle", "exec", config.command, config.script}
+      args = {"-n", "--open", "--port", config.port, "-c", "--", "bundle", "exec", config.command, config.script}
     else
-      args = {"--open", "--port", config.port, "-c", "--", config.command, config.script}
+      args = {"-n", "--open", "--port", config.port, "-c", "--", config.command, config.script}
     end
 
     local opts = {
       stdio = {nil, stdout},
-      args = {"--open", "--port", config.port, "-c", "--", config.command, config.script},
+      args = {"-n", "--open", "--port", config.port, "-c", "--", config.command, config.script},
       detached = false
     }
 
