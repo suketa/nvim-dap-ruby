@@ -56,6 +56,7 @@ end
 -- ]] -- END OF DEBUG SETTING
 -- END for nvim-dap-ruby debug
 
+-- TO DEBUG, CHANGE '-- [[ => '--[['
 -- [[
 local function setup_ruby_adapter(dap)
   dap.adapters.ruby = function(callback, config)
