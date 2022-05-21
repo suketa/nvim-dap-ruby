@@ -7,6 +7,7 @@ An extension for [nvim-dap](https://github.com/mfussenegger/nvim-dap) providing 
 - Neovim
 - [nvim-dap](https://github.com/mfussenegger/nvim-dap)
 - [debug.rb](https://github.com/ruby/debug)
+- [rspec](https://github.com/rspec/rspec-metagem) (required if you `2: run current spec file` or `3: run rspec`)
 
 ## Installation
 
