@@ -69,18 +69,19 @@ local function setup_ruby_adapter(dap)
     if config.bundle == 'bundle' then
       args = {"-n", "--open", "--port", config.port, "-c", "--", "bundle", "exec", config.command, config.script}
     else
-      args = {"-n", "--open", "--port", config.port, "-c", "--", config.command, config.script}
+      args = {"--open", "--port", config.port, "-c", "--", config.command, config.script}
     end
 
     local opts = {
       stdio = {nil, stdout},
-      args = {"-n", "--open", "--port", config.port, "-c", "--", config.command, config.script},
+      args = args,
       detached = false
     }
 
     handle, pid_or_err = vim.loop.spawn("rdbg", opts, function(code)
       handle:close()
       if code ~= 0 then
+        assert(handle, 'rdbg exited with code: ' .. tostring(code))
         print('rdbg exited with code', code)
       end
     end)
