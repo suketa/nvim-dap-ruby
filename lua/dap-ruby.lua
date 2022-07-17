@@ -120,6 +120,7 @@ local function setup_ruby_configuration(dap)
        options = {
          source_filetype = 'ruby';
        };
+       localfs = true;
        waiting = 1000;
     },
     {
@@ -134,6 +135,7 @@ local function setup_ruby_configuration(dap)
        options = {
          source_filetype = 'ruby';
        };
+       localfs = true;
        waiting = 1000;
     },
     {
@@ -148,6 +150,7 @@ local function setup_ruby_configuration(dap)
        options = {
          source_filetype = 'ruby';
        };
+       localfs = true;
        waiting = 1000;
     }
   }
