@@ -117,6 +117,9 @@ local function setup_ruby_configuration(dap)
        script = "${file}";
        port = 38698;
        server = '127.0.0.1';
+       options = {
+         source_filetype = 'ruby';
+       };
        waiting = 1000;
     },
     {
@@ -128,6 +131,9 @@ local function setup_ruby_configuration(dap)
        script = "${file}";
        port = 38698;
        server = '127.0.0.1';
+       options = {
+         source_filetype = 'ruby';
+       };
        waiting = 1000;
     },
     {
@@ -139,6 +145,9 @@ local function setup_ruby_configuration(dap)
        script = "./spec";
        port = 38698;
        server = '127.0.0.1';
+       options = {
+         source_filetype = 'ruby';
+       };
        waiting = 1000;
     }
   }
