@@ -66,7 +66,7 @@ local function setup_ruby_adapter(dap)
     local waiting = config.waiting or 500
     local args
     local script
-
+    local rdbg
     if config.current_line then
       script = config.script .. ':' .. vim.fn.line(".")
     else
@@ -84,8 +84,14 @@ local function setup_ruby_adapter(dap)
       args = args,
       detached = false
     }
-
-    handle, pid_or_err = vim.loop.spawn("rdbg", opts, function(code)
+    
+    if vim.fn.has('win32') or vim.fn.has('win64') then
+      rdbg = "rdbg.bat"
+    else
+      rdbg = "rdbg"
+    end
+    
+    handle, pid_or_err = vim.loop.spawn(rdbg, opts, function(code)
       handle:close()
       if code ~= 0 then
         assert(handle, 'rdbg exited with code: ' .. tostring(code))
