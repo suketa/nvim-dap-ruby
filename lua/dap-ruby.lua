@@ -67,6 +67,7 @@ local function setup_ruby_adapter(dap)
     local args
     local script
     local rdbg
+    
     if config.current_line then
       script = config.script .. ':' .. vim.fn.line(".")
     else
