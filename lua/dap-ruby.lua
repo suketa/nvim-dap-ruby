@@ -86,7 +86,7 @@ local function setup_ruby_adapter(dap)
       detached = false
     }
     
-    if vim.fn.has('win32') or vim.fn.has('win64') then
+    if vim.fn.has('win32') ~= 0 or vim.fn.has('win64') ~= 0 then
       rdbg = "rdbg.bat"
     else
       rdbg = "rdbg"
