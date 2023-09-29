@@ -36,11 +36,11 @@ Call `:lua require('dap').continue()` to start debugging.
 - [x] rspec
   - [x] start debugger with current opened spec file (`bundle exec rspec /path/to/file_spec.rb`)
   - [x] start debugger with `bundle exec rspec ./spec`
+- [x] rails
 
 ## Not Supported Yet
 
 - [ ] rake test
-- [ ] rails
 - [ ] connect running rdbg
 
 ## Acknowledgement
