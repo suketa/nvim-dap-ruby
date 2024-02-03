@@ -2,47 +2,65 @@
 
 An extension for [nvim-dap](https://github.com/mfussenegger/nvim-dap) providing configurations for launching [debug.rb](https://github.com/ruby/debug).
 
-## Pre-reqs
+## :zap: Requirements
 
 - Neovim
 - [nvim-dap](https://github.com/mfussenegger/nvim-dap)
 - [debug.rb](https://github.com/ruby/debug)
-- [rspec](https://github.com/rspec/rspec-metagem) (required if you `2: run current spec file` or `3: run rspec`)
+- [RSpec](https://github.com/rspec/rspec-metagem) (required if you `2: run current spec file` or `3: run rspec`)
 
-## Installation
+## :package: Installation
+
+Lazy.nvim:
+
+```lua
+{
+  "mfussenegger/nvim-dap",
+  dependencies = {
+    "suketa/nvim-dap-ruby"
+  },
+  config = function()
+    require("dap-ruby").setup()
+  end
+}
+```
+
+Vim-plug:
 
 ```
 Plug 'mfussenegger/nvim-dap'
 Plug 'suketa/nvim-dap-ruby'
 ```
 
-## Usage
+## :rocket: Usage
 
-### Register the plugin
+### Registering the plugin
 
-Call the setup function in your init.vim to register the ruby adapter and the configurations to debug ruby:
+If you're not using Lazy.nvim, you'll need to call the setup function to register and setup the adapter:
 
 ```lua
 lua require('dap-ruby').setup()
 ```
 
-### Use nvim-dap as usual
+### Debugging
 
 Call `:lua require('dap').continue()` to start debugging.
 
-## Features
+## :sparkles: Features
 
-- [x] start debugger with current opened file.
-- [x] rspec
-  - [x] start debugger with current opened spec file (`bundle exec rspec /path/to/file_spec.rb`)
-  - [x] start debugger with `bundle exec rspec ./spec`
-- [x] rails
+### Implemented
 
-## Not Supported Yet
+- [x] Start debugger with current opened file.
+- [x] RSpec
+  - [x] Start debugger with current opened spec file (`bundle exec rspec /path/to/file_spec.rb`)
+  - [x] Start debugger with `bundle exec rspec ./spec`
+- [x] Rails integration
 
-- [ ] rake test
-- [ ] connect running rdbg
+### Not Supported Yet
 
-## Acknowledgement
+- [ ] Rake test
+- [ ] Connect running rdbg
+
+## :clap: Acknowledgement
 
 Thanks to [nvim-dap-go](https://github.com/leoluz/nvim-dap-go) for the inspiration.
