@@ -17,7 +17,13 @@ local function setup_ruby_adapter(dap)
 		if config.command then
 			local handle
 			local pid_or_err
-			local opts = { args = config.args }
+			local args = config.args or {}
+			if config.current_line then
+				table.insert(args, vim.fn.expand("%:p") .. ":" .. vim.fn.line("."))
+			elseif config.current_file then
+				table.insert(args, vim.fn.expand("%:p"))
+			end
+			local opts = { args = args }
 			handle, pid_or_err = vim.loop.spawn(config.command, opts, function(code)
 				handle:close()
 				if code ~= 0 then
@@ -54,52 +60,51 @@ local function setup_ruby_configuration(dap)
 			localfs = true,
 			waiting = 1000,
 		},
-		-- {
-		-- 	type = "ruby",
-		-- 	name = "debug current file",
-		-- 	bundle = "",
-		-- 	request = "attach",
-		-- 	command = "ruby",
-		-- 	script = "${file}",
-		-- 	port = 38698,
-		-- 	server = "127.0.0.1",
-		-- 	options = {
-		-- 		source_filetype = "ruby",
-		-- 	},
-		-- 	localfs = true,
-		-- 	waiting = 1000,
-		-- },
-		-- {
-		-- 	type = "ruby",
-		-- 	name = "run rspec current_file",
-		-- 	bundle = "bundle",
-		-- 	request = "attach",
-		-- 	command = "rspec",
-		-- 	script = "${file}",
-		-- 	port = 38698,
-		-- 	server = "127.0.0.1",
-		-- 	options = {
-		-- 		source_filetype = "ruby",
-		-- 	},
-		-- 	localfs = true,
-		-- 	waiting = 1000,
-		-- },
-		-- {
-		-- 	type = "ruby",
-		-- 	name = "run rspec current_file:current_line",
-		-- 	bundle = "bundle",
-		-- 	request = "attach",
-		-- 	command = "rspec",
-		-- 	script = "${file}",
-		-- 	port = 38698,
-		-- 	server = "127.0.0.1",
-		-- 	options = {
-		-- 		source_filetype = "ruby",
-		-- 	},
-		-- 	localfs = true,
-		-- 	waiting = 1000,
-		-- 	current_line = true,
-		-- },
+		{
+			type = "ruby",
+			name = "debug current file",
+			request = "attach",
+			command = "ruby",
+			current_file = true,
+			port = 38698,
+			server = "127.0.0.1",
+			options = {
+				source_filetype = "ruby",
+			},
+			localfs = true,
+			waiting = 1000,
+		},
+		{
+			type = "ruby",
+			name = "run rspec current_file",
+			request = "attach",
+			command = "bundle",
+			args = { "exec", "rspec" },
+			current_file = true,
+			port = 38698,
+			server = "127.0.0.1",
+			options = {
+				source_filetype = "ruby",
+			},
+			localfs = true,
+			waiting = 1000,
+		},
+		{
+			type = "ruby",
+			name = "run rspec current_file:current_line",
+			request = "attach",
+			command = "bundle",
+			args = { "exec", "rspec" },
+			current_line = true,
+			port = 38698,
+			server = "127.0.0.1",
+			options = {
+				source_filetype = "ruby",
+			},
+			localfs = true,
+			waiting = 1000,
+			current_line = true,
+		},
 		{
 			type = "ruby",
 			name = "run rspec",
@@ -118,6 +123,19 @@ local function setup_ruby_configuration(dap)
 			type = "ruby",
 			name = "attach existing",
 			request = "attach",
+			port = 38698,
+			server = "127.0.0.1",
+			options = {
+				source_filetype = "ruby",
+			},
+			localfs = true,
+			waiting = 1000,
+		},
+		{
+			type = "ruby",
+			name = "run bin/dev",
+			request = "attach",
+			command = "bin/dev",
 			port = 38698,
 			server = "127.0.0.1",
 			options = {
