@@ -8,23 +8,26 @@ end
 
 local function setup_ruby_adapter(dap)
 	dap.adapters.ruby = function(callback, config)
-		local handle
-		local pid_or_err
 		local waiting = config.waiting or 500
 
 		vim.env.RUBY_DEBUG_OPEN = true
 		vim.env.RUBY_DEBUG_HOST = config.server
 		vim.env.RUBY_DEBUG_PORT = config.port
 
-		local opts = { args = config.args }
+		if config.command then
+			local handle
+			local pid_or_err
+			local opts = { args = config.args }
+			handle, pid_or_err = vim.loop.spawn(config.command, opts, function(code)
+				handle:close()
+				if code ~= 0 then
+					assert(handle, "rdbg exited with code: " .. tostring(code))
+					print("rdbg exited with code", code)
+				end
+			end)
 
-		handle, pid_or_err = vim.loop.spawn(config.command, opts, function(code)
-			handle:close()
-			if code ~= 0 then
-				assert(handle, "rdbg exited with code: " .. tostring(code))
-				print("rdbg exited with code", code)
-			end
-		end)
+			assert(handle, "Error running rgdb: " .. tostring(pid_or_err))
+		end
 
 		assert(handle, "Error running rgdb: " .. tostring(pid_or_err))
 
@@ -103,6 +106,18 @@ local function setup_ruby_configuration(dap)
 			request = "attach",
 			command = "bundle",
 			args = { "exec", "rspec" },
+			port = 38698,
+			server = "127.0.0.1",
+			options = {
+				source_filetype = "ruby",
+			},
+			localfs = true,
+			waiting = 1000,
+		},
+		{
+			type = "ruby",
+			name = "attach existing",
+			request = "attach",
 			port = 38698,
 			server = "127.0.0.1",
 			options = {
