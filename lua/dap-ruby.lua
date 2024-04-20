@@ -65,7 +65,7 @@ local function setup_ruby_adapter(dap)
 				end
 			end)
 
-			assert(handle, "Error running rgdb: " .. tostring(pid_or_err))
+			assert(handle, "Error running command: " .. config.command .. tostring(pid_or_err))
 		end
 
 		assert(handle, "Error running rgdb: " .. tostring(pid_or_err))
