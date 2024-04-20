@@ -6,6 +6,15 @@ local function load_module(module_name)
 	return module
 end
 
+local function pick_port()
+	local port
+	vim.ui.input(
+		{ prompt = "Select port to connect to: " },
+		function(input) port = input end
+	)
+	return port
+end
+
 -- Command may not be in path, so travel up the directory tree to find it
 local function find_cmd_dir(cmd)
 	local filepath = vim.fn.getcwd()
@@ -25,10 +34,17 @@ end
 local function setup_ruby_adapter(dap)
 	dap.adapters.ruby = function(callback, config)
 		local waiting = config.waiting or 500
+		local server = config.server or vim.env.RUBY_DEBUG_HOST or "127.0.0.1"
+		-- Take the port from the config if the user has set this
+		-- If not, pick a random ephemeral port so we (probably) wont collide with other debuggers or anything else
+		-- If not, have the user pick a port
+		local port = config.port
+		port = port or config.random_port and math.random(49152, 65535)
+		port = port or pick_port()
 
 		vim.env.RUBY_DEBUG_OPEN = true
-		vim.env.RUBY_DEBUG_HOST = config.server
-		vim.env.RUBY_DEBUG_PORT = config.port
+		vim.env.RUBY_DEBUG_HOST = server
+		vim.env.RUBY_DEBUG_PORT = port
 
 		if config.command then
 			local handle
@@ -56,7 +72,7 @@ local function setup_ruby_adapter(dap)
 
 		-- Wait for rdbg to start
 		vim.defer_fn(function()
-			callback({ type = "server", host = config.server, port = config.port })
+			callback({ type = "server", host = server, port = port })
 		end, waiting)
 	end
 end
@@ -69,7 +85,7 @@ local function setup_ruby_configuration(dap)
 			request = "attach",
 			command = "bundle",
 			args = { "exec", "rails", "s" },
-			port = 38698,
+			random_port = true,
 			server = "127.0.0.1",
 			options = {
 				source_filetype = "ruby",
@@ -83,7 +99,7 @@ local function setup_ruby_configuration(dap)
 			request = "attach",
 			command = "ruby",
 			current_file = true,
-			port = 38698,
+			random_port = true,
 			server = "127.0.0.1",
 			options = {
 				source_filetype = "ruby",
@@ -98,7 +114,7 @@ local function setup_ruby_configuration(dap)
 			command = "bundle",
 			args = { "exec", "rspec" },
 			current_file = true,
-			port = 38698,
+			random_port = true,
 			server = "127.0.0.1",
 			options = {
 				source_filetype = "ruby",
@@ -113,7 +129,7 @@ local function setup_ruby_configuration(dap)
 			command = "bundle",
 			args = { "exec", "rspec" },
 			current_line = true,
-			port = 38698,
+			random_port = true,
 			server = "127.0.0.1",
 			options = {
 				source_filetype = "ruby",
@@ -128,6 +144,18 @@ local function setup_ruby_configuration(dap)
 			request = "attach",
 			command = "bundle",
 			args = { "exec", "rspec" },
+			random_port = true,
+			server = "127.0.0.1",
+			options = {
+				source_filetype = "ruby",
+			},
+			localfs = true,
+			waiting = 1000,
+		},
+		{
+			type = "ruby",
+			name = "attach existing (port 38698)",
+			request = "attach",
 			port = 38698,
 			server = "127.0.0.1",
 			options = {
@@ -138,9 +166,8 @@ local function setup_ruby_configuration(dap)
 		},
 		{
 			type = "ruby",
-			name = "attach existing",
+			name = "attach existing (pick port)",
 			request = "attach",
-			port = 38698,
 			server = "127.0.0.1",
 			options = {
 				source_filetype = "ruby",
@@ -153,7 +180,7 @@ local function setup_ruby_configuration(dap)
 			name = "run bin/dev",
 			request = "attach",
 			command = "bin/dev",
-			port = 38698,
+			random_port = true,
 			server = "127.0.0.1",
 			options = {
 				source_filetype = "ruby",
