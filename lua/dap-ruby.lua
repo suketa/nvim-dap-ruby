@@ -31,6 +31,31 @@ local function find_cmd_dir(cmd)
 	error(cmd .. " not found in " .. og_filepath .. " or any of its ancestors")
 end
 
+local function run_cmd(cmd, args, for_current_line, for_current_file)
+	local handle
+	local pid_or_err
+	local working_dir = find_cmd_dir(cmd)
+	args = args or {}
+	if for_current_line then
+		table.insert(args, vim.fn.expand("%:p") .. ":" .. vim.fn.line("."))
+	elseif for_current_file then
+		table.insert(args, vim.fn.expand("%:p"))
+	end
+	local opts = { args = args, cwd = working_dir }
+
+	handle, pid_or_err = vim.loop.spawn(cmd, opts, function(code)
+		if handle then
+			handle:close()
+		end
+		if code ~= 0 then
+			local full_cmd = cmd .. " " .. table.concat(args, " ")
+			error("Command `" .. full_cmd .. "` ran from `" .. working_dir .. "` exited with code " .. code)
+		end
+	end)
+
+	assert(handle, "Error running command: " .. cmd .. tostring(pid_or_err))
+end
+
 local function setup_ruby_adapter(dap)
 	dap.adapters.ruby = function(callback, config)
 		local waiting = config.waiting or 500
@@ -42,33 +67,12 @@ local function setup_ruby_adapter(dap)
 		port = port or config.random_port and math.random(49152, 65535)
 		port = port or pick_port()
 
-		vim.env.RUBY_DEBUG_OPEN = true
-		vim.env.RUBY_DEBUG_HOST = server
-		vim.env.RUBY_DEBUG_PORT = port
-
 		if config.command then
-			local handle
-			local pid_or_err
-			local args = config.args or {}
-			local working_dir = find_cmd_dir(config.command)
-			if config.current_line then
-				table.insert(args, vim.fn.expand("%:p") .. ":" .. vim.fn.line("."))
-			elseif config.current_file then
-				table.insert(args, vim.fn.expand("%:p"))
-			end
-			local opts = { args = args, cwd = working_dir }
-			handle, pid_or_err = vim.loop.spawn(config.command, opts, function(code)
-				handle:close()
-				if code ~= 0 then
-					local full_command = config.command .. " " .. table.concat(args, " ")
-					error("Command `" .. full_command .."` ran from `" .. working_dir .. "` exited with code " .. code)
-				end
-			end)
-
-			assert(handle, "Error running command: " .. config.command .. tostring(pid_or_err))
+			vim.env.RUBY_DEBUG_OPEN = true
+			vim.env.RUBY_DEBUG_HOST = server
+			vim.env.RUBY_DEBUG_PORT = port
+			run_cmd(config.command, config.args, config.current_line, config.current_file)
 		end
-
-		assert(handle, "Error running rgdb: " .. tostring(pid_or_err))
 
 		-- Wait for rdbg to start
 		vim.defer_fn(function()
@@ -78,116 +82,23 @@ local function setup_ruby_adapter(dap)
 end
 
 local function setup_ruby_configuration(dap)
+	local base_config = { type = "ruby", request = "attach", options = { source_filetype = "ruby" }, localfs = true }
+	local run_config = vim.tbl_extend("force", base_config, { waiting = 1000, random_port = true })
+	local function extend_base_config(config)
+		return vim.tbl_extend("force", base_config, config)
+	end
+	local function extend_run_config(config)
+		return vim.tbl_extend("force", run_config, config)
+	end
 	dap.configurations.ruby = {
-		{
-			type = "ruby",
-			name = "run rails",
-			request = "attach",
-			command = "bundle",
-			args = { "exec", "rails", "s" },
-			random_port = true,
-			server = "127.0.0.1",
-			options = {
-				source_filetype = "ruby",
-			},
-			localfs = true,
-			waiting = 1000,
-		},
-		{
-			type = "ruby",
-			name = "debug current file",
-			request = "attach",
-			command = "ruby",
-			current_file = true,
-			random_port = true,
-			server = "127.0.0.1",
-			options = {
-				source_filetype = "ruby",
-			},
-			localfs = true,
-			waiting = 1000,
-		},
-		{
-			type = "ruby",
-			name = "run rspec current_file",
-			request = "attach",
-			command = "bundle",
-			args = { "exec", "rspec" },
-			current_file = true,
-			random_port = true,
-			server = "127.0.0.1",
-			options = {
-				source_filetype = "ruby",
-			},
-			localfs = true,
-			waiting = 1000,
-		},
-		{
-			type = "ruby",
-			name = "run rspec current_file:current_line",
-			request = "attach",
-			command = "bundle",
-			args = { "exec", "rspec" },
-			current_line = true,
-			random_port = true,
-			server = "127.0.0.1",
-			options = {
-				source_filetype = "ruby",
-			},
-			localfs = true,
-			waiting = 1000,
-			current_line = true,
-		},
-		{
-			type = "ruby",
-			name = "run rspec",
-			request = "attach",
-			command = "bundle",
-			args = { "exec", "rspec" },
-			random_port = true,
-			server = "127.0.0.1",
-			options = {
-				source_filetype = "ruby",
-			},
-			localfs = true,
-			waiting = 1000,
-		},
-		{
-			type = "ruby",
-			name = "attach existing (port 38698)",
-			request = "attach",
-			port = 38698,
-			server = "127.0.0.1",
-			options = {
-				source_filetype = "ruby",
-			},
-			localfs = true,
-			waiting = 1000,
-		},
-		{
-			type = "ruby",
-			name = "attach existing (pick port)",
-			request = "attach",
-			server = "127.0.0.1",
-			options = {
-				source_filetype = "ruby",
-			},
-			localfs = true,
-			waiting = 1000,
-		},
-		{
-			type = "ruby",
-			name = "run bin/dev",
-			request = "attach",
-			command = "bin/dev",
-			random_port = true,
-			server = "127.0.0.1",
-			options = {
-				source_filetype = "ruby",
-			},
-			localfs = true,
-			waiting = 1000,
-		},
+		extend_run_config({ name = "run rails", command = "bundle", args = { "exec", "rails", "s" } }),
+		extend_run_config({ name = "debug current file", command = "ruby", current_file = true }),
+		extend_run_config({ name = "run rspec current file", command = "bundle", args = { "exec", "rspec" }, current_file = true }),
+		extend_run_config({ name = "run rspec current_file:current_line", command = "bundle", args = { "exec", "rspec" }, current_line = true }),
+		extend_run_config({ name = "run rspec", command = "bundle", args = { "exec", "rspec" } }),
+		extend_run_config({ name = "bin/dev", command = "bin/dev", local_command = true }),
+		extend_base_config({ name = "attach existing (port 38698)", port = 38698, waiting = 0 }),
+		extend_base_config({ name = "attach existing (pick port)", waiting = 0 }),
 	}
 end
 
