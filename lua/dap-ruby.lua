@@ -31,7 +31,7 @@ local function find_cmd_dir(cmd)
 	error(cmd .. " not found in " .. og_filepath .. " or any of its ancestors")
 end
 
-local function run_cmd(cmd, args, for_current_line, for_current_file)
+local function run_cmd(cmd, args, for_current_line, for_current_file, error_on_failure)
 	local handle
 	local pid_or_err
 	local stdout = vim.loop.new_pipe(false)
@@ -48,7 +48,7 @@ local function run_cmd(cmd, args, for_current_line, for_current_file)
 		if handle then
 			handle:close()
 		end
-		if code ~= 0 then
+		if error_on_failure and code ~= 0 then
 			local full_cmd = cmd .. " " .. table.concat(args, " ")
 			error("Command `" .. full_cmd .. "` ran from `" .. working_dir .. "` exited with code " .. code)
 		end
@@ -81,7 +81,10 @@ local function setup_ruby_adapter(dap)
 			vim.env.RUBY_DEBUG_OPEN = true
 			vim.env.RUBY_DEBUG_HOST = server
 			vim.env.RUBY_DEBUG_PORT = port
-			run_cmd(config.command, config.args, config.current_line, config.current_file)
+			run_cmd(
+				config.command, config.args, config.current_line, config.current_file,
+				config.error_on_failure
+			)
 		end
 
 		-- Wait for rdbg to start
@@ -92,7 +95,7 @@ local function setup_ruby_adapter(dap)
 end
 
 local function setup_ruby_configuration(dap)
-	local base_config = { type = "ruby", request = "attach", options = { source_filetype = "ruby" }, localfs = true }
+	local base_config = { type = "ruby", request = "attach", options = { source_filetype = "ruby" }, error_on_failure = true, localfs = true }
 	local run_config = vim.tbl_extend("force", base_config, { waiting = 1000, random_port = true })
 	local function extend_base_config(config)
 		return vim.tbl_extend("force", base_config, config)
