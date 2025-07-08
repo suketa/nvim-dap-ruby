@@ -62,6 +62,10 @@ RUBY_DEBUG_OPEN=true RUBY_DEBUG_HOST=127.0.0.1 RUBY_DEBUG_PORT=38698 bin/dev # I
 ```
 
 - You need to see `DEBUGGER: Debugger can attach via TCP/IP (127.0.0.1:38698)` somewhere in the console output.
+
+> [!NOTE]
+> If you do not see the output and you get an `ECONNREFUSED` error when you try to attach the debugger, try adding the following at the top of `config/environments/development.rb`: `require "debug/open_nonstop"`
+
 - Open nvim in your project's directory, and open a ruby file into a buffer.
 - Start the debugger e.g. `:DapContinue` and select the option to `attach existing (port 38698)`.
 - Now set breakpoints and make the app hit one of those by navigating to the page that you are working on in a web browser.
